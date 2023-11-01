@@ -1,0 +1,18 @@
+# check if /data/su.img exists and set property
+on boot
+    # Samsung
+    exec /sbin/launch_daemonsu.sh boot
+    # Other devices
+    if /sbin/sukernel --mount-suimg
+        setprop sukernel.mount 1
+
+# create a symlink from /su/bin to /sbin
+on property:sukernel.mount=1
+    symlink /su/bin /sbin
+
+# start SuperSU daemon in the background
+service daemonsu /sbin/launch_daemonsu.sh service &
+    class main
+    user root
+    seclabel u:r:init:s0
+    oneshot
